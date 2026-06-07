@@ -48,7 +48,7 @@ export default function StudentForm() {
 
   const fetchEventDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/public/events/${token}`);
+      const response = await axios.get(`http://${window.location.hostname}:8080/api/public/events/${token}`);
       const data = response.data;
       setEvent(data);
 
@@ -77,7 +77,7 @@ export default function StudentForm() {
     };
 
     try {
-      await axios.post(`http://localhost:8080/api/public/attendance/mark/${token}`, payload);
+      await axios.post(`http://${window.location.hostname}:8080/api/public/attendance/mark/${token}`, payload);
       setStatus('SUCCESS');
     } catch (err) {
       const statusValue = err.response?.status;

@@ -33,7 +33,7 @@ export default function ViewQR() {
   const downloadQR = async () => {
     if (!event) return;
     try {
-      const qrUrl = `http://localhost:8080/api/public/events/qr/${token}`;
+      const qrUrl = `http://${window.location.hostname}:8080/api/public/events/qr/${token}`;
       const response = await axios.get(qrUrl, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'image/png' });
       const url = window.URL.createObjectURL(blob);
@@ -54,8 +54,8 @@ export default function ViewQR() {
     window.print();
   };
 
-  const qrImageUrl = `http://localhost:8080/api/public/events/qr/${token}`;
-  const studentFormUrl = `http://localhost:5173/attend/${token}`;
+  const qrImageUrl = `http://${window.location.hostname}:8080/api/public/events/qr/${token}`;
+  const studentFormUrl = `http://${window.location.host}/attend/${token}`;
 
   return (
     <div className="flex-1 max-w-2xl mx-auto px-4 py-8 w-full print:p-0">
