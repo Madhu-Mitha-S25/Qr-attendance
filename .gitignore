@@ -8,6 +8,7 @@ backend/*.ear
 backend/bin/
 backend/.gradle/
 backend/build/
+backend/.maven/
 
 # Frontend build files
 frontend/node_modules/
