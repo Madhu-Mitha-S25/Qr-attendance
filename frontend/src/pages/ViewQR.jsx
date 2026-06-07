@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { QrCode, ArrowLeft, Download, Printer, ExternalLink, Calendar, CheckSquare } from 'lucide-react';
+import { QrCode, ArrowLeft, Download, Printer, ExternalLink, Calendar, CheckSquare, MapPin } from 'lucide-react';
 import API from '../services/api';
 import axios from 'axios';
 
@@ -120,6 +120,12 @@ export default function ViewQR() {
             `}</style>
 
             <h2 className="qr-title text-2xl font-black text-slate-800 line-clamp-2 px-4">{event.eventName}</h2>
+            {event.eventPlace && (
+              <div className="flex items-center space-x-1.5 text-slate-500 font-bold uppercase tracking-wider text-sm mt-1 justify-center">
+                <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>Venue: {event.eventPlace}</span>
+              </div>
+            )}
             <p className="qr-subtitle text-slate-500 text-sm mt-1.5 font-bold uppercase tracking-wider">Scan QR Code to Check In</p>
 
             <div className="my-8 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl shadow-inner relative group">

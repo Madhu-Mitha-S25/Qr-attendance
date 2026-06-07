@@ -37,6 +37,7 @@ public class EventService {
         Event event = Event.builder()
                 .faculty(faculty)
                 .eventName(request.getEventName())
+                .eventPlace(request.getEventPlace())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .attendanceMode(request.getAttendanceMode().toUpperCase())
@@ -73,6 +74,7 @@ public class EventService {
         return EventResponse.builder()
                 .id(event.getId())
                 .eventName(event.getEventName())
+                .eventPlace(event.getEventPlace())
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())
                 .attendanceMode(event.getAttendanceMode())
@@ -81,5 +83,27 @@ public class EventService {
                 .presentCount(presentCount)
                 .absentCount(absentCount)
                 .build();
+    }
+
+    @Transactional
+    public Event updateEvent(Event event, EventRequest request) {
+        if (request.getEndTime().isBefore(request.getStartTime())) {
+            throw new CustomExceptions.EventExpiredException("End time must be after start time!");
+        }
+
+        event.setEventName(request.getEventName());
+        event.setEventPlace(request.getEventPlace());
+        event.setStartTime(request.getStartTime());
+        event.setEndTime(request.getEndTime());
+        event.setAttendanceMode(request.getAttendanceMode().toUpperCase());
+
+        return eventRepository.save(event);
+    }
+
+    @Transactional
+    public void deleteEvent(Event event) {
+        attendanceRepository.deleteByEventId(event.getId());
+        participantRepository.deleteByEventId(event.getId());
+        eventRepository.delete(event);
     }
 }

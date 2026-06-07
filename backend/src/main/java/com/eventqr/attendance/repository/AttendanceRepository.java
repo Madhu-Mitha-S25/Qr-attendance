@@ -16,4 +16,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     
     @Query("SELECT a FROM Attendance a JOIN FETCH a.participant p WHERE a.event.id = :eventId ORDER BY a.attendanceTime DESC")
     List<Attendance> findByEventIdEager(@Param("eventId") Long eventId);
+
+    void deleteByEventId(Long eventId);
 }

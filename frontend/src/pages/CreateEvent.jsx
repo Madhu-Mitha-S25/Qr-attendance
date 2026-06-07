@@ -5,6 +5,7 @@ import API from '../services/api';
 
 export default function CreateEvent() {
   const [eventName, setEventName] = useState('');
+  const [eventPlace, setEventPlace] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [attendanceMode, setAttendanceMode] = useState('REGISTERED');
@@ -29,6 +30,7 @@ export default function CreateEvent() {
     try {
       const payload = {
         eventName,
+        eventPlace,
         startTime: startTime + ':00', // ensure LocalDateTime format ISO
         endTime: endTime + ':00',
         attendanceMode,
@@ -85,6 +87,17 @@ export default function CreateEvent() {
               value={eventName}
               onChange={(e) => setEventName(e.target.value)}
               placeholder="e.g. Seminar on AI Ethics / CS 101 Lecture"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-800 text-sm font-medium bg-white"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Event Place / Venue</label>
+            <input
+              type="text"
+              value={eventPlace}
+              onChange={(e) => setEventPlace(e.target.value)}
+              placeholder="e.g. Seminar Hall-1 / Room 402 / Virtual"
               className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-800 text-sm font-medium bg-white"
             />
           </div>

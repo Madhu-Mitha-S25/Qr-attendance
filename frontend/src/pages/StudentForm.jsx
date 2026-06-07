@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CheckCircle, AlertTriangle, XCircle, Clock, Send, Award, Calendar } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Clock, Send, Award, Calendar, MapPin } from 'lucide-react';
 import axios from 'axios';
 
 export default function StudentForm() {
@@ -133,6 +133,9 @@ export default function StudentForm() {
           </p>
           <div className="mt-6 p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-left text-xs font-semibold text-slate-500 space-y-1.5">
             <div><span className="text-slate-400 font-bold uppercase tracking-wider block text-[9px] mb-0.5">Event:</span> {event?.eventName}</div>
+            {event?.eventPlace && (
+              <div><span className="text-slate-400 font-bold uppercase tracking-wider block text-[9px] mb-0.5">Venue:</span> {event?.eventPlace}</div>
+            )}
             <div><span className="text-slate-400 font-bold uppercase tracking-wider block text-[9px] mb-0.5">Time Logged:</span> {new Date().toLocaleTimeString()}</div>
           </div>
         </div>
@@ -214,7 +217,13 @@ export default function StudentForm() {
       <div className="w-full max-w-md glass p-8 rounded-2xl shadow-xl border border-white/60 relative z-10 mx-auto">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-black text-slate-800 line-clamp-2">{event.eventName}</h2>
-          <span className="inline-flex mt-2 items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-full text-xs font-bold">
+          {event.eventPlace && (
+            <div className="flex items-center space-x-1.5 text-xs text-slate-500 font-bold uppercase tracking-wider mt-1.5 justify-center">
+              <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Venue: {event.eventPlace}</span>
+            </div>
+          )}
+          <span className="inline-flex mt-2.5 items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-full text-xs font-bold">
             <Calendar className="h-3.5 w-3.5" />
             <span>Attendance Active</span>
           </span>

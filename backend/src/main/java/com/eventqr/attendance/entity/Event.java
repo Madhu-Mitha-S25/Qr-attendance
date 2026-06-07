@@ -17,6 +17,9 @@ public class Event {
     @Column(name = "event_name", nullable = false, length = 150)
     private String eventName;
 
+    @Column(name = "event_place", length = 255)
+    private String eventPlace;
+
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
@@ -31,10 +34,11 @@ public class Event {
 
     public Event() {}
 
-    public Event(Long id, Faculty faculty, String eventName, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode, String qrToken) {
+    public Event(Long id, Faculty faculty, String eventName, String eventPlace, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode, String qrToken) {
         this.id = id;
         this.faculty = faculty;
         this.eventName = eventName;
+        this.eventPlace = eventPlace;
         this.startTime = startTime;
         this.endTime = endTime;
         this.attendanceMode = attendanceMode;
@@ -63,6 +67,14 @@ public class Event {
     
     public void setEventName(String eventName) { 
         this.eventName = eventName; 
+    }
+
+    public String getEventPlace() { 
+        return eventPlace; 
+    }
+    
+    public void setEventPlace(String eventPlace) { 
+        this.eventPlace = eventPlace; 
     }
 
     public LocalDateTime getStartTime() { 
@@ -105,6 +117,7 @@ public class Event {
         private Long id;
         private Faculty faculty;
         private String eventName;
+        private String eventPlace;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
         private String attendanceMode;
@@ -122,6 +135,11 @@ public class Event {
         
         public EventBuilder eventName(String eventName) { 
             this.eventName = eventName; 
+            return this; 
+        }
+        
+        public EventBuilder eventPlace(String eventPlace) { 
+            this.eventPlace = eventPlace; 
             return this; 
         }
         
@@ -146,7 +164,7 @@ public class Event {
         }
 
         public Event build() {
-            return new Event(id, faculty, eventName, startTime, endTime, attendanceMode, qrToken);
+            return new Event(id, faculty, eventName, eventPlace, startTime, endTime, attendanceMode, qrToken);
         }
     }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class EventResponse {
     private Long id;
     private String eventName;
+    private String eventPlace;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String attendanceMode;
@@ -15,9 +16,10 @@ public class EventResponse {
 
     public EventResponse() {}
 
-    public EventResponse(Long id, String eventName, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode, String qrToken, long totalParticipants, long presentCount, long absentCount) {
+    public EventResponse(Long id, String eventName, String eventPlace, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode, String qrToken, long totalParticipants, long presentCount, long absentCount) {
         this.id = id;
         this.eventName = eventName;
+        this.eventPlace = eventPlace;
         this.startTime = startTime;
         this.endTime = endTime;
         this.attendanceMode = attendanceMode;
@@ -41,6 +43,14 @@ public class EventResponse {
     
     public void setEventName(String eventName) { 
         this.eventName = eventName; 
+    }
+
+    public String getEventPlace() { 
+        return eventPlace; 
+    }
+    
+    public void setEventPlace(String eventPlace) { 
+        this.eventPlace = eventPlace; 
     }
 
     public LocalDateTime getStartTime() { 
@@ -106,6 +116,7 @@ public class EventResponse {
     public static class EventResponseBuilder {
         private Long id;
         private String eventName;
+        private String eventPlace;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
         private String attendanceMode;
@@ -121,6 +132,11 @@ public class EventResponse {
         
         public EventResponseBuilder eventName(String eventName) { 
             this.eventName = eventName; 
+            return this; 
+        }
+        
+        public EventResponseBuilder eventPlace(String eventPlace) { 
+            this.eventPlace = eventPlace; 
             return this; 
         }
         
@@ -160,7 +176,7 @@ public class EventResponse {
         }
 
         public EventResponse build() {
-            return new EventResponse(id, eventName, startTime, endTime, attendanceMode, qrToken, totalParticipants, presentCount, absentCount);
+            return new EventResponse(id, eventName, eventPlace, startTime, endTime, attendanceMode, qrToken, totalParticipants, presentCount, absentCount);
         }
     }
 }

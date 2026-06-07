@@ -8,6 +8,8 @@ public class EventRequest {
     @NotBlank
     private String eventName;
 
+    private String eventPlace;
+
     @NotNull
     private LocalDateTime startTime;
 
@@ -19,8 +21,9 @@ public class EventRequest {
 
     public EventRequest() {}
 
-    public EventRequest(String eventName, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode) {
+    public EventRequest(String eventName, String eventPlace, LocalDateTime startTime, LocalDateTime endTime, String attendanceMode) {
         this.eventName = eventName;
+        this.eventPlace = eventPlace;
         this.startTime = startTime;
         this.endTime = endTime;
         this.attendanceMode = attendanceMode;
@@ -32,6 +35,14 @@ public class EventRequest {
     
     public void setEventName(String eventName) { 
         this.eventName = eventName; 
+    }
+
+    public String getEventPlace() { 
+        return eventPlace; 
+    }
+    
+    public void setEventPlace(String eventPlace) { 
+        this.eventPlace = eventPlace; 
     }
 
     public LocalDateTime getStartTime() { 

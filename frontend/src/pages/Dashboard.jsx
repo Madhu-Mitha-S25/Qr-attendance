@@ -1,12 +1,93 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Download, QrCode, Upload, Radio, Users, CheckCircle, Clock, Calendar } from 'lucide-react';
+import { Plus, Download, QrCode, Upload, Radio, Users, CheckCircle, Clock, Calendar, MapPin, Edit, Trash2 } from 'lucide-react';
 import API from '../services/api';
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editEventId, setEditEventId] = useState(null);
+  const [editEventName, setEditEventName] = useState('');
+  const [editEventPlace, setEditEventPlace] = useState('');
+  const [editStartTime, setEditStartTime] = useState('');
+  const [editEndTime, setEditEndTime] = useState('');
+  const [editAttendanceMode, setEditAttendanceMode] = useState('');
+  const [editError, setEditError] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
+
+  const handleOpenEditModal = (event) => {
+    setEditEventId(event.id);
+    setEditEventName(event.eventName);
+    setEditEventPlace(event.eventPlace || '');
+    setEditStartTime(event.startTime ? event.startTime.substring(0, 16) : '');
+    setEditEndTime(event.endTime ? event.endTime.substring(0, 16) : '');
+    setEditAttendanceMode(event.attendanceMode);
+    setEditError('');
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateEvent = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    
+    const start = new Date(editStartTime);
+    const end = new Date(editEndTime);
+    if (end <= start) {
+      setEditError('End Time must be after the Start Time.');
+      return;
+    }
+    
+    setEditLoading(true);
+    try {
+      const payload = {
+        eventName: editEventName,
+        eventPlace: editEventPlace,
+        startTime: editStartTime + ':00',
+        endTime: editEndTime + ':00',
+        attendanceMode: editAttendanceMode
+      };
+      
+      await API.put(`/faculty/events/${editEventId}`, payload);
+      setIsEditModalOpen(false);
+      fetchEvents(); // reload list
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Failed to update event. Please try again.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // Delete State
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteEventItem, setDeleteEventItem] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleOpenDeleteConfirm = (event) => {
+    setDeleteEventItem(event);
+    setDeleteError('');
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!deleteEventItem) return;
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await API.delete(`/faculty/events/${deleteEventItem.id}`);
+      setIsDeleteConfirmOpen(false);
+      setDeleteEventItem(null);
+      fetchEvents(); // reload list
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Failed to delete event. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -180,9 +261,34 @@ export default function Dashboard() {
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-800 line-clamp-1 mb-2" title={event.eventName}>
-                    {event.eventName}
-                  </h3>
+                  <div className="flex justify-between items-start mb-2 gap-2">
+                    <h3 className="text-xl font-bold text-slate-800 line-clamp-1" title={event.eventName}>
+                      {event.eventName}
+                    </h3>
+                    <div className="flex items-center space-x-1 shrink-0">
+                      <button 
+                        onClick={() => handleOpenEditModal(event)}
+                        className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                        title="Edit Event"
+                      >
+                        <Edit className="h-4.5 w-4.5" />
+                      </button>
+                      <button 
+                        onClick={() => handleOpenDeleteConfirm(event)}
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Event"
+                      >
+                        <Trash2 className="h-4.5 w-4.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {event.eventPlace && (
+                    <div className="flex items-center space-x-1.5 text-xs text-slate-500 font-semibold mb-3">
+                      <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <span className="truncate" title={event.eventPlace}>Venue: {event.eventPlace}</span>
+                    </div>
+                  )}
 
                   {/* Timings */}
                   <div className="space-y-1.5 text-xs text-slate-500 font-semibold mb-5">
@@ -257,6 +363,138 @@ export default function Dashboard() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Edit Event Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+              <h3 className="font-extrabold text-slate-800 text-lg">Edit Event Details</h3>
+              <button 
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-slate-400 hover:text-slate-650 font-bold text-lg p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateEvent} className="p-6 space-y-4">
+              {editError && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-semibold">
+                  {editError}
+                </div>
+              )}
+              
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Event Title</label>
+                <input
+                  type="text"
+                  required
+                  value={editEventName}
+                  onChange={(e) => setEditEventName(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-850 text-sm font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Event Place / Venue</label>
+                <input
+                  type="text"
+                  value={editEventPlace}
+                  onChange={(e) => setEditEventPlace(e.target.value)}
+                  placeholder="e.g. Seminar Hall-1 / Room 402"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-850 text-sm font-semibold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Start Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editStartTime}
+                    onChange={(e) => setEditStartTime(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 text-xs font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">End Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={editEndTime}
+                    onChange={(e) => setEditEndTime(e.target.value)}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex justify-end space-x-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editLoading}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {editLoading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmOpen && deleteEventItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 text-center">
+              <div className="h-14 w-14 bg-rose-105 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="h-7 w-7" />
+              </div>
+              <h3 className="font-extrabold text-slate-800 text-lg mb-2">Delete Event?</h3>
+              <p className="text-slate-500 text-xs font-semibold leading-relaxed mb-4">
+                Are you sure you want to delete <strong className="text-slate-700">"{deleteEventItem.eventName}"</strong>? 
+                <br />
+                This will permanently remove the event, its participant roster, and all logged attendance. This action cannot be undone.
+              </p>
+              
+              {deleteError && (
+                <div className="bg-rose-50 border border-rose-200 text-rose-600 px-3.5 py-2 rounded-xl text-xs font-semibold mb-4 text-left">
+                  {deleteError}
+                </div>
+              )}
+              
+              <div className="flex space-x-2.5 justify-center">
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteConfirmOpen(false)}
+                  disabled={deleteLoading}
+                  className="px-4.5 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteEvent}
+                  disabled={deleteLoading}
+                  className="px-4.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {deleteLoading ? 'Deleting...' : 'Delete Permanently'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

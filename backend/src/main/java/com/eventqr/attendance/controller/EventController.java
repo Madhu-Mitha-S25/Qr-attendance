@@ -61,12 +61,46 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    @PutMapping("/faculty/events/{id}")
+    public ResponseEntity<?> updateEvent(
+            @PathVariable Long id,
+            @Valid @RequestBody EventRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Faculty faculty = getFaculty(userDetails);
+        Event event = eventService.getEventById(id);
+        
+        if (!event.getFaculty().getId().equals(faculty.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageResponse("You are not authorized to edit this event!"));
+        }
+        
+        Event updatedEvent = eventService.updateEvent(event, request);
+        return ResponseEntity.ok(eventService.mapToEventResponse(updatedEvent));
+    }
+
+    @DeleteMapping("/faculty/events/{id}")
+    public ResponseEntity<?> deleteEvent(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Faculty faculty = getFaculty(userDetails);
+        Event event = eventService.getEventById(id);
+        
+        if (!event.getFaculty().getId().equals(faculty.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new MessageResponse("You are not authorized to delete this event!"));
+        }
+        
+        eventService.deleteEvent(event);
+        return ResponseEntity.ok(new MessageResponse("Event deleted successfully!"));
+    }
+
     @GetMapping("/public/events/{qrToken}")
     public ResponseEntity<Map<String, Object>> getPublicEvent(@PathVariable String qrToken) {
         Event event = eventService.getEventByToken(qrToken);
         
         Map<String, Object> details = new HashMap<>();
         details.put("eventName", event.getEventName());
+        details.put("eventPlace", event.getEventPlace());
         details.put("startTime", event.getStartTime());
         details.put("endTime", event.getEndTime());
         details.put("attendanceMode", event.getAttendanceMode());
@@ -82,8 +116,14 @@ public class EventController {
 
     @GetMapping(value = "/public/events/qr/{qrToken}", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getQrCode(@PathVariable String qrToken) {
+        String hostIp;
+        try {
+            hostIp = java.net.InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            hostIp = "localhost";
+        }
         // The QR code contains the URL to the frontend student attendance page
-        String url = "http://localhost:5173/attend/" + qrToken;
+        String url = "http://" + hostIp + ":5173/attend/" + qrToken;
         byte[] qrImage = qrCodeService.generateQrCodeImage(url, 400, 400);
         return ResponseEntity.ok(qrImage);
     }

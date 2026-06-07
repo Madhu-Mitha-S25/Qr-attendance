@@ -12,4 +12,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     Optional<Participant> findByEventIdAndEmailIgnoreCase(Long eventId, String email);
     List<Participant> findByEventId(Long eventId);
     long countByEventId(Long eventId);
+
+    void deleteByEventId(Long eventId);
 }
