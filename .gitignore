@@ -1,0 +1,37 @@
+# Backend build files
+backend/target/
+backend/*.jar
+backend/*.war
+backend/*.zip
+backend/*.tar.gz
+backend/*.ear
+backend/bin/
+backend/.gradle/
+backend/build/
+
+# Frontend build files
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.svelte-kit/
+frontend/.next/
+frontend/out/
+
+# IDE / System files
+.idea/
+*.iml
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+desktop.ini
+$RECYCLE.BIN/
